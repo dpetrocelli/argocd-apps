@@ -32,14 +32,14 @@ metadata:
   name: rabbitmq-operator
   namespace: argocd
 spec:
-  project: default
+  project: root-application
   source:
-    repoURL: 'https://charts.bitnami.com/bitnami'  # Repositorio de Helm de Bitnami
-    targetRevision: '6.1.1'  # Asegúrate de usar la versión más reciente y adecuada del chart
+    repoURL: 'https://charts.bitnami.com/bitnami'
+    targetRevision: '6.1.1'
     chart: rabbitmq-operator
   destination:
     server: 'https://kubernetes.default.svc'
-    namespace: services  # Espacio de nombres donde se instalará el operador
+    namespace: services
   syncPolicy:
     automated:
       prune: true
