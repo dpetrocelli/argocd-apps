@@ -30,7 +30,7 @@ apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: rabbitmq-operator
-  namespace: argocd
+  namespace: services
 spec:
   project: root-application
   source:
