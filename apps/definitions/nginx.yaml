@@ -1,0 +1,22 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-deployment
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: app-services
+  source:
+    repoURL: 'https://github.com/unlu2024/SD2024/tif/cloud-shared-services/argocd/argocd-apps'
+    targetRevision: 'HEAD'  # Use a specific tag or branch if needed
+    chart: mynginx
+  destination:
+    name: in-cluster
+    namespace: apps-backend
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
