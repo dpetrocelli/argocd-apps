@@ -9,8 +9,8 @@ spec:
   project: default
   source:
     repoURL: 'https://charts.bitnami.com/bitnami'
-    targetRevision: '6.1.1'
-    chart: rabbitmq-operator
+    targetRevision: '4.2.10'
+    chart: rabbitmq-cluster-operator
   destination:
     name: in-cluster
     namespace: services
