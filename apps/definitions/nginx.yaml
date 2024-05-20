@@ -9,7 +9,7 @@ spec:
   project: app-services
   source:
     repoURL: 'https://charts.bitnami.com/bitnami'
-    targetRevision: 'latest'
+    targetRevision: '17.0.2'
     chart: nginx
   destination:
     name: in-cluster
