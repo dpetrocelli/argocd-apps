@@ -4,13 +4,13 @@ metadata:
   name: nginx-deployment
   namespace: argocd
   finalizers:
-  - resources-finalizer.argocd.argoproj.io
+  - resources-finalizer.argoproj.io
 spec:
   project: app-services
   source:
     repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
-    targetRevision: 'main'  # Replace 'HEAD' with 'main' or another branch/tag/commit
-    chart: apps/charts/mynginx
+    targetRevision: 'main'  # Ensure this is the default branch if specific commits/tags don't work
+    chart: charts/mynginx
   destination:
     name: in-cluster
     namespace: apps-backend
