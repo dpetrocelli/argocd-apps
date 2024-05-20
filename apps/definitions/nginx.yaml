@@ -8,9 +8,9 @@ metadata:
 spec:
   project: app-services
   source:
-    repoURL: 'https://github.com/unlu2024/SD2024/tif/cloud-shared-services/argocd/argocd-apps'
+    repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
     targetRevision: 'HEAD'  # Use a specific tag or branch if needed
-    chart: mynginx
+    chart: apps/charts/mynginx
   destination:
     name: in-cluster
     namespace: apps-backend
