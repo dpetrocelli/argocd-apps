@@ -13,8 +13,10 @@ spec:
     chart: rabbitmq-cluster-operator
   destination:
     name: in-cluster
-    namespace: services
+    namespace: services-rabbitmq
   syncPolicy:
     automated:
       prune: true
       selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
