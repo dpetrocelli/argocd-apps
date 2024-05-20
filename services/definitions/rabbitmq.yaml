@@ -6,7 +6,7 @@ metadata:
   finalizers:
   - resources-finalizer.argocd.argoproj.io
 spec:
-  project: infra-services2
+  project: infra-services
   source:
     repoURL: 'https://charts.bitnami.com/bitnami'
     targetRevision: '4.2.10'
