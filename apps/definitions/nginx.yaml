@@ -8,9 +8,9 @@ metadata:
 spec:
   project: app-services
   source:
-    repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
-    targetRevision: 'main'  # Ensure this is the default branch if specific commits/tags don't work
-    chart: charts/mynginx
+    repoURL: 'https://charts.bitnami.com/bitnami'
+    targetRevision: 'latest'
+    chart: nginx
   destination:
     name: in-cluster
     namespace: apps-backend
