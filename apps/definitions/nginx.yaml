@@ -9,7 +9,7 @@ spec:
   project: app-services
   source:
     repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
-    targetRevision: 'HEAD'  # Use a specific tag or branch if needed
+    targetRevision: 'main'  # Replace 'HEAD' with 'main' or another branch/tag/commit
     chart: apps/charts/mynginx
   destination:
     name: in-cluster
