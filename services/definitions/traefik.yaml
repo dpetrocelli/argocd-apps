@@ -7,13 +7,14 @@ spec:
   project: infra-services
   source:
     repoURL: 'https://helm.traefik.io/traefik'
-    targetRevision: '28.0.0'  # Ensure to use the latest stable version
+    targetRevision: '28.0.0'  # Adjusted to the latest version based on your update
     chart: traefik
     helm:
       values: |
         ports:
           web:
-            redirectTo: websecure
+            redirectTo:
+              port: websecure
           websecure:
             tls:
               enabled: true
