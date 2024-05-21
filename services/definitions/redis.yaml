@@ -11,6 +11,10 @@ spec:
     repoURL: 'https://charts.bitnami.com/bitnami'
     targetRevision: '10.0.6'
     chart: redis-cluster
+    helm:
+      values: |
+        cluster:
+          replicas: 3
   destination:
     name: in-cluster
     namespace: services-redis
