@@ -14,7 +14,8 @@ spec:
     helm:
       values: |
         cluster:
-          replicas: 3
+          nodes: 3
+          replicas: 1
   destination:
     name: in-cluster
     namespace: services-redis
