@@ -1,0 +1,43 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: traefik-ingress
+  namespace: argocd
+spec:
+  project: infra-services
+  source:
+    repoURL: 'https://helm.traefik.io/traefik'
+    targetRevision: '28.0.0'  # Ensure to use the latest stable version
+    chart: traefik
+    helm:
+      values: |
+        ports:
+          web:
+            redirectTo: websecure
+          websecure:
+            tls:
+              enabled: true
+              certResolver: myresolver
+        additionalArguments:
+          - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+          - "--certificatesresolvers.myresolver.acme.email=dmpetrocelli@gmail.com"
+          - "--certificatesresolvers.myresolver.acme.storage=acme.json"
+        ingressRoute:
+          dashboard:
+            enabled: true
+            domain: "traefik-dashboard.10.net.ar"
+        providers:
+          kubernetesCRD:
+            enabled: true
+          kubernetesIngress:
+            enabled: true
+            ingressClass: traefik-cert-manager
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: services-traefik
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
