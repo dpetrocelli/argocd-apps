@@ -1,0 +1,54 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager
+  namespace: argocd
+  finalizers:
+  - resources-finalizer.argocd.argoproj.io
+spec:
+  project: infra-services
+  source:
+    repoURL: 'https://charts.jetstack.io'
+    targetRevision: '1.14.5'
+    chart: cert-manager
+    helm:
+      parameters:
+        - name: installCRDs
+          value: 'false'  # Ensure CRDs are not managed by Helm to avoid conflicts
+  destination:
+    name: in-cluster
+    namespace: services-cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+  hooks:
+    - name: install-crds
+      type: PreSync
+      templateName: crd-install-job
+      arguments:
+        parameters:
+          - name: url
+            value: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml"
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: crd-install-job
+  namespace: services-cert-manager
+spec:
+  template:
+    spec:
+      restartPolicy: OnFailure
+      containers:
+      - name: kubectl
+        image: bitnami/kubectl:latest
+        command:
+        - sh
+        - -c
+        - "kubectl apply -f $(URL)"
+        env:
+        - name: URL
+          value: "{{workflow.parameters.url}}"
