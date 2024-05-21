@@ -14,7 +14,7 @@ spec:
     helm:
       parameters:
         - name: installCRDs
-          value: 'false'  # Ensure CRDs are not managed by Helm to avoid conflicts
+          value: 'true'  # Ensure CRDs are not managed by Helm to avoid conflicts
   destination:
     name: in-cluster
     namespace: services-cert-manager
@@ -32,23 +32,23 @@ spec:
         parameters:
           - name: url
             value: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml"
----
-apiVersion: batch/v1
-kind: Job
-metadata:
-  name: crd-install-job
-  namespace: services-cert-manager
-spec:
-  template:
-    spec:
-      restartPolicy: OnFailure
-      containers:
-      - name: kubectl
-        image: bitnami/kubectl:latest
-        command:
-        - sh
-        - -c
-        - "kubectl apply -f $(URL)"
-        env:
-        - name: URL
-          value: "{{workflow.parameters.url}}"
+# ---
+# apiVersion: batch/v1
+# kind: Job
+# metadata:
+#   name: crd-install-job
+#   namespace: services-cert-manager
+# spec:
+#   template:
+#     spec:
+#       restartPolicy: OnFailure
+#       containers:
+#       - name: kubectl
+#         image: bitnami/kubectl:latest
+#         command:
+#         - sh
+#         - -c
+#         - "kubectl apply -f $(URL)"
+#         env:
+#         - name: URL
+#           value: "{{workflow.parameters.url}}"
