@@ -43,8 +43,6 @@ spec:
       log.console.level = info
       channel_max = 1700
       default_user_tags.administrator = true
-    username: admin
-    password: admin
   service:
     type: ClusterIP
 ---
