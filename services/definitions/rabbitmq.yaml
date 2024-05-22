@@ -1,68 +1,68 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: rabbitmq-operator
-  namespace: argocd
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: infra-services
-  source:
-    repoURL: 'https://charts.bitnami.com/bitnami'
-    targetRevision: '4.2.10'
-    chart: rabbitmq-cluster-operator
-    helm:
-      values: |
-        installCRDs: true
-  destination:
-    name: in-cluster
-    namespace: services-rabbitmq
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: rabbitmq-operator
+#   namespace: argocd
+#   finalizers:
+#   - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: infra-services
+#   source:
+#     repoURL: 'https://charts.bitnami.com/bitnami'
+#     targetRevision: '4.2.10'
+#     chart: rabbitmq-cluster-operator
+#     helm:
+#       values: |
+#         installCRDs: true
+#   destination:
+#     name: in-cluster
+#     namespace: services-rabbitmq
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
 
----
-apiVersion: rabbitmq.com/v1beta1
-kind: RabbitmqCluster
-metadata:
-  name: rabbitmqcluster-prod
-  namespace: services-rabbitmq
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Ensures this is deployed after the operator
-spec:
-  replicas: 3
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
-    limits:
-      cpu: 1
-      memory: 2Gi
-  rabbitmq:
-    additionalConfig: |
-      log.console.level = info
-      channel_max = 1700
-      default_user_tags.administrator = true
-  service:
-    type: ClusterIP
----
-apiVersion: rabbitmq.com/v1beta1
-kind: Policy
-metadata:
-  name: sdpolicy
-  namespace: services-rabbitmq
-spec:
-  name: sdpolicy # name of the policy
-  vhost: "/" # default to '/' if not provided
-  pattern: "^SD-.*" # regex used to match queues and exchanges starting with "SD-"
-  applyTo: "all" # set to 'queues', 'exchanges', or 'all'
-  definition:
-    ha-mode: "exactly"
-    ha-params: 2
-    ha-sync-mode: "automatic"
-  rabbitmqClusterReference:
-    name: rabbitmqcluster-prod
+# ---
+# apiVersion: rabbitmq.com/v1beta1
+# kind: RabbitmqCluster
+# metadata:
+#   name: rabbitmqcluster-prod
+#   namespace: services-rabbitmq
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "1"  # Ensures this is deployed after the operator
+# spec:
+#   replicas: 3
+#   resources:
+#     requests:
+#       cpu: 500m
+#       memory: 1Gi
+#     limits:
+#       cpu: 1
+#       memory: 2Gi
+#   rabbitmq:
+#     additionalConfig: |
+#       log.console.level = info
+#       channel_max = 1700
+#       default_user_tags.administrator = true
+#   service:
+#     type: ClusterIP
+# ---
+# apiVersion: rabbitmq.com/v1beta1
+# kind: Policy
+# metadata:
+#   name: sdpolicy
+#   namespace: services-rabbitmq
+# spec:
+#   name: sdpolicy # name of the policy
+#   vhost: "/" # default to '/' if not provided
+#   pattern: "^SD-.*" # regex used to match queues and exchanges starting with "SD-"
+#   applyTo: "all" # set to 'queues', 'exchanges', or 'all'
+#   definition:
+#     ha-mode: "exactly"
+#     ha-params: 2
+#     ha-sync-mode: "automatic"
+#   rabbitmqClusterReference:
+#     name: rabbitmqcluster-prod
 
