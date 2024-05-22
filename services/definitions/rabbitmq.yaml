@@ -11,6 +11,9 @@ spec:
     repoURL: 'https://charts.bitnami.com/bitnami'
     targetRevision: '4.2.10'
     chart: rabbitmq-cluster-operator
+    helm:
+      values: |
+        installCRDs: true
   destination:
     name: in-cluster
     namespace: services-rabbitmq
