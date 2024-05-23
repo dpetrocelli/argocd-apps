@@ -33,7 +33,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"  # Ensures this is deployed after the operator
 spec:
-  replicas: 3
+  replicas: 6
   resources:
     requests:
       cpu: 500m
