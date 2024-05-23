@@ -48,21 +48,21 @@ spec:
       default_user_tags.administrator = true
   service:
     type: ClusterIP
----
-apiVersion: rabbitmq.com/v1beta1
-kind: Policy
-metadata:
-  name: sdpolicy
-  namespace: services-rabbitmq
-spec:
-  name: sdpolicy # name of the policy
-  vhost: "/" # default to '/' if not provided
-  pattern: "^SD-.*" # regex used to match queues and exchanges starting with "SD-"
-  applyTo: "all" # set to 'queues', 'exchanges', or 'all'
-  definition:
-    ha-mode: "exactly"
-    ha-params: 2
-    ha-sync-mode: "automatic"
-  rabbitmqClusterReference:
-    name: rabbitmqcluster-prod
+# ---
+# apiVersion: rabbitmq.com/v1beta1
+# kind: Policy
+# metadata:
+#   name: sdpolicy
+#   namespace: services-rabbitmq
+# spec:
+#   name: sdpolicy # name of the policy
+#   vhost: "/" # default to '/' if not provided
+#   pattern: "^SD-.*" # regex used to match queues and exchanges starting with "SD-"
+#   applyTo: "all" # set to 'queues', 'exchanges', or 'all'
+#   definition:
+#     ha-mode: "exactly"
+#     ha-params: 2
+#     ha-sync-mode: "automatic"
+#   rabbitmqClusterReference:
+#     name: rabbitmqcluster-prod
 
