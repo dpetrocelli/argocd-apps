@@ -1,53 +1,53 @@
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: rabbitmq-operator
-  namespace: argocd
-  finalizers:
-  - resources-finalizer.argocd.argoproj.io
-spec:
-  project: infra-services2
-  source:
-    repoURL: 'https://charts.bitnami.com/bitnami'
-    targetRevision: '4.2.10'
-    chart: rabbitmq-cluster-operator
-    helm:
-      values: |
-        installCRDs: true
-  destination:
-    name: in-cluster
-    namespace: services-rabbitmq
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-      - CreateNamespace=true
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: rabbitmq-operator
+#   namespace: argocd
+#   finalizers:
+#   - resources-finalizer.argocd.argoproj.io
+# spec:
+#   project: infra-services
+#   source:
+#     repoURL: 'https://charts.bitnami.com/bitnami'
+#     targetRevision: '4.2.10'
+#     chart: rabbitmq-cluster-operator
+#     helm:
+#       values: |
+#         installCRDs: true
+#   destination:
+#     name: in-cluster
+#     namespace: services-rabbitmq
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
 
----
-apiVersion: rabbitmq.com/v1beta1
-kind: RabbitmqCluster
-metadata:
-  name: rabbitmqcluster-prod
-  namespace: services-rabbitmq
-  annotations:
-    argocd.argoproj.io/sync-wave: "1"  # Ensures this is deployed after the operator
-spec:
-  replicas: 6
-  resources:
-    requests:
-      cpu: 500m
-      memory: 1Gi
-    limits:
-      cpu: 1
-      memory: 2Gi
-  rabbitmq:
-    additionalConfig: |
-      log.console.level = info
-      channel_max = 1700
-      default_user_tags.administrator = true
-  service:
-    type: ClusterIP
+# ---
+# apiVersion: rabbitmq.com/v1beta1
+# kind: RabbitmqCluster
+# metadata:
+#   name: rabbitmqcluster-prod
+#   namespace: services-rabbitmq
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "1"  # Ensures this is deployed after the operator
+# spec:
+#   replicas: 6
+#   resources:
+#     requests:
+#       cpu: 500m
+#       memory: 1Gi
+#     limits:
+#       cpu: 1
+#       memory: 2Gi
+#   rabbitmq:
+#     additionalConfig: |
+#       log.console.level = info
+#       channel_max = 1700
+#       default_user_tags.administrator = true
+#   service:
+#     type: ClusterIP
 # ---
 # apiVersion: rabbitmq.com/v1beta1
 # kind: Policy
@@ -66,3 +66,23 @@ spec:
 #   rabbitmqClusterReference:
 #     name: rabbitmqcluster-prod
 
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmq-cluster-operator
+  namespace: argocd
+spec:
+  project: infra-services
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: rabbitmq-cluster-operator
+    targetRevision: '4.2.10' # Specify the version of the Helm chart you want to use
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: services-rabbitmq
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

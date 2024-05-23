@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmqcluster-prod
+  namespace: argocd
+spec:
+  project: infra-services
+  source:
+    repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
+    targetRevision: HEAD
+    path: SD2024/tif/cloud-shared-services/argocd/argocd-apps/services/charts/rabbitmq/
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: services-rabbitmq
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
