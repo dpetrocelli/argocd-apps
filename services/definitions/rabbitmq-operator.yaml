@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: rabbitmq-cluster-operator
+  namespace: argocd
+spec:
+  project: infra-services
+  source:
+    repoURL: https://charts.bitnami.com/bitnami
+    chart: rabbitmq-cluster-operator
+    targetRevision: '4.2.10' # Specify the version of the Helm chart you want to use
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: services-rabbitmq
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
