@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: nginx-dev-cloudflare
+  namespace: default
+spec:
+  secretName: nginx-default-tls
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "*.10.net.ar"
+  dnsNames:
+  - "10.net.ar"
+  - "*.10.net.ar"

@@ -1,0 +1,20 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: cert-manager-configuration
+  namespace: argocd
+spec:
+  project: infra-services
+  source:
+    repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
+    targetRevision: HEAD
+    path: services/charts/cert-manager
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: services-cert-manager
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

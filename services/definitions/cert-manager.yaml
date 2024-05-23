@@ -12,11 +12,19 @@ spec:
     targetRevision: '1.14.5'
     chart: cert-manager
     helm:
-      parameters:
-        - name: installCRDs
-          value: 'true'  # Ensure CRDs are not managed by Helm to avoid conflicts
+      values: |
+        installCRDs: false
+        replicaCount: 3
+        extraArgs:
+          - --dns01-recursive-nameservers=1.1.1.1:53,9.9.9.9:53
+          - --dns01-recursive-nameservers-only
+        podDnsPolicy: None
+        podDnsConfig:
+          nameservers:
+            - "1.1.1.1"
+            - "9.9.9.9"
   destination:
-    name: in-cluster
+    server: 'https://kubernetes.default.svc'
     namespace: services-cert-manager
   syncPolicy:
     automated:
@@ -32,6 +40,7 @@ spec:
         parameters:
           - name: url
             value: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml"
+
 # ---
 # apiVersion: batch/v1
 # kind: Job
