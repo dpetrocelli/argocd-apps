@@ -35,31 +35,25 @@ spec:
   hooks:
     - name: install-crds
       type: PreSync
-      templateName: crd-install-job
-      arguments:
-        parameters:
-          - name: url
-            value: "https://github.com/cert-manager/cert-manager/releases/download/v1.14.5/cert-manager.crds.yaml"
-
-# ---
-# apiVersion: batch/v1
-# kind: Job
-# metadata:
-#   name: crd-install-job
-#   namespace: services-cert-manager
-# spec:
-#   template:
-#     spec:
-#       restartPolicy: OnFailure
-#       containers:
-#       - name: kubectl
-#         image: bitnami/kubectl:latest
-#         command:
-#         - sh
-#         - -c
-#         - "kubectl apply -f $(URL)"
-#         env:
-#         - name: URL
-#           value: "{{workflow.parameters.url}}"
-
-
+      helm:
+        releaseName: cert-manager-crds
+        chart:
+          spec:
+            chart: "cert-manager"
+            sourceRef:
+              repoURL: "https://charts.jetstack.io"
+              path: "/charts/cert-manager"
+              targetRevision: "1.14.5"
+            version: "v1.14.5"
+            hooks:
+              - name: install-crds
+                events: [ "pre-install", "pre-upgrade" ]
+                manifest: |
+                  apiVersion: v1
+                  kind: Secret
+                  metadata:
+                    name: cert-manager-webhook-ca
+                    namespace: cert-manager
+                  data:
+                    ca.crt: |
+                      {{ .Files.Get "templates/webhook/ca.crt" | b64enc | quote }}
