@@ -1,7 +1,7 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: cloudflare-traefik-ips-configuration
+  name: cloudflare-traefik-ips-configurationx
   namespace: argocd
 spec:
   project: infra-services
