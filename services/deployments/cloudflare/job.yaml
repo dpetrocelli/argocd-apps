@@ -1,0 +1,60 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: update-cloudflare-dns
+  namespace: services-traefik
+  annotations:
+    argocd.argoproj.io/hook: PostSync
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: update-dns
+        image: bitnami/kubectl:latest
+        command: ["/bin/bash", "-c"]
+        args:
+        - |
+          # Install curl and jq
+          apt-get update && apt-get install -y curl jq
+
+          # Fetch the external IP of the Traefik LoadBalancer service
+          EXTERNAL_IP=$(kubectl get svc traefik-ingress -n services-traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+
+          # Fetch all A records from Cloudflare
+          RECORDS=$(curl -X GET "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records?type=A" \
+            -H "Authorization: Bearer $CF_API_TOKEN" \
+            -H "Content-Type: application/json" \
+            | jq -c '.result[] | {id: .id, name: .name}')
+
+          # Update each DNS record
+          echo $RECORDS | jq -c '.[]' | while read -r line; do
+            RECORD_ID=$(echo $line | jq -r '.id')
+            RECORD_NAME=$(echo $line | jq -r '.name')
+
+            echo "Updating DNS record $RECORD_NAME with IP $EXTERNAL_IP"
+
+            curl -X PUT "https://api.cloudflare.com/client/v4/zones/$CF_ZONE_ID/dns_records/$RECORD_ID" \
+              -H "Authorization: Bearer $CF_API_TOKEN" \
+              -H "Content-Type: application/json" \
+              --data '{
+                "type": "A",
+                "name": "'"$RECORD_NAME"'",
+                "content": "'"$EXTERNAL_IP"'",
+                "ttl": 1,
+                "proxied": false
+              }'
+          done
+
+          echo "DNS records updated successfully"
+        env:
+        - name: CF_API_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-token-secret
+              key: cloudflare-token
+        - name: CF_ZONE_ID
+          valueFrom:
+            secretKeyRef:
+              name: cloudflare-token-secret
+              key: zone-id
