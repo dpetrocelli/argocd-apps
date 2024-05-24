@@ -15,7 +15,7 @@ spec:
         command: ["/bin/bash", "-c"]
         args:
         - |
-          
+          echo " DALE "
           echo " getting EXTERNAL IP FROM K8s TRAEFIK"
           # Fetch the external IP of the Traefik LoadBalancer service
           EXTERNAL_IP=$(kubectl get svc traefik-ingress -n services-traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
