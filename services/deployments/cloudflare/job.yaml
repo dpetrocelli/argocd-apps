@@ -17,7 +17,7 @@ spec:
         - |
           # Install curl and jq
           echo " installing curl "
-          apt-get update && apt-get install -y curl jq
+          sudo apt-get update && sudo apt-get install -y curl jq
           echo " getting EXTERNAL IP FROM K8s TRAEFIK"
           # Fetch the external IP of the Traefik LoadBalancer service
           EXTERNAL_IP=$(kubectl get svc traefik-ingress -n services-traefik -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
