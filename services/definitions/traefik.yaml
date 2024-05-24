@@ -80,28 +80,28 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
----
-apiVersion: networking.k8s.io/v1
-kind: Ingress
-metadata:
-  name: traefik-dashboard-ingress
-  namespace: services-traefik
-  annotations:
-    kubernetes.io/ingress.class: "traefik"
-    traefik.ingress.kubernetes.io/router.entrypoints: websecure
-spec:
-  rules:
-  - host: "traefik-dashboard.10.net.ar"
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: traefik
-            port:
-              number: 8080
-  tls:
-  - hosts:
-    - "traefik-dashboard.10.net.ar"
-    secretName: traefik-tls-secret
+# ---
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: traefik-dashboard-ingress
+#   namespace: services-traefik
+#   annotations:
+#     kubernetes.io/ingress.class: "traefik"
+#     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+# spec:
+#   rules:
+#   - host: "traefik-dashboard.10.net.ar"
+#     http:
+#       paths:
+#       - path: /
+#         pathType: Prefix
+#         backend:
+#           service:
+#             name: traefik
+#             port:
+#               number: 8080
+#   tls:
+#   - hosts:
+#     - "traefik-dashboard.10.net.ar"
+#     secretName: traefik-tls-secret
