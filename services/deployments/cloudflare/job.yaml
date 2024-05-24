@@ -2,7 +2,7 @@ apiVersion: batch/v1
 kind: Job
 metadata:
   name: update-cloudflare-dns
-  namespace: services-traefik
+  namespace: services-cert-manager
   annotations:
     argocd.argoproj.io/hook: PostSync
 spec:
