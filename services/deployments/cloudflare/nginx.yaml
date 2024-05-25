@@ -1,0 +1,43 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: nginx-deployment
+#   namespace: argocd
+#   finalizers:
+#   - resources-finalizer.argoproj.io
+# spec:
+#   project: app-services
+#   source:
+#     repoURL: 'https://charts.bitnami.com/bitnami'
+#     targetRevision: '17.0.2'
+#     chart: nginx
+#   destination:
+#     name: in-cluster
+#     namespace: apps-backend
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: nginx-deployment
+  namespace: argocd
+spec:
+  project: app-services
+  source:
+    repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'  # Replace with your actual Git repository URL if different
+    targetRevision: HEAD
+    path: 'apps/deployments/nginx'
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: default
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
