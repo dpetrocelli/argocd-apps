@@ -8,7 +8,7 @@ spec:
   source:
     repoURL: 'https://github.com/dpetrocelli/argocd-apps.git'
     targetRevision: HEAD
-    path: services/charts/cert-manager
+    path: services/configurations/cert-manager
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: services-cert-manager
