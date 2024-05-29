@@ -1,3 +1,24 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: argocd-server
+  namespace: argocd
+  annotations:
+    cloud.google.com/neg: '{"ingress":true}'  # Ensure this is required for your setup
+spec:
+  type: ClusterIP
+  ports:
+  - name: http
+    port: 80
+    protocol: TCP
+    targetPort: 8080
+  - name: https
+    port: 443
+    protocol: TCP
+    targetPort: 8080
+  selector:
+    app.kubernetes.io/name: argocd-server
+
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -5,7 +26,7 @@ metadata:
   name: argocd
   namespace: argocd
   annotations: 
-    kubernetes.io/ingress.class: traefik-external
+    kubernetes.io/ingress.class: "traefik-external"
 spec:
   entryPoints:
     - websecure
@@ -14,13 +35,11 @@ spec:
       kind: Rule
       services:
         - name: argocd-server
-          port: 80
+          port: 443
     - match: Host(`argocd.10.net.ar`)
       kind: Rule
       services:
         - name: argocd-server
-          port: 80
-      # middlewares:
-      #   - name: default-headers
+          port: 443
   tls:
     secretName: argocd-dev-cert

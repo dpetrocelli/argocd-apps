@@ -1,0 +1,15 @@
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: rabbitmq-dev-cert
+  namespace: services-rabbitmq
+spec:
+  secretName: rabbitmq-dev-cert
+  issuerRef:
+    name: letsencrypt-production
+    kind: ClusterIssuer
+  commonName: "*.10.net.ar"
+  dnsNames:
+  - "10.net.ar"
+  - "*.10.net.ar"
