@@ -47,7 +47,7 @@ spec:
   entryPoints:
     - epmd
   routes:
-  - match: HostSNI(`epmdrabbitmq.10.net.ar`)
+  - match: HostSNI(`epmd-rabbitmq.10.net.ar`)
     services:
     - name: rabbitmq
       port: 4369
@@ -61,7 +61,7 @@ spec:
   entryPoints:
     - amqp
   routes:
-  - match: HostSNI(`*`)
+  - match: HostSNI(`epmd-rabbitmq.10.net.ar`)
     services:
     - name: rabbitmqcluster-prod
       port: 5672
@@ -69,7 +69,7 @@ spec:
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
 metadata:
-  name: admin-rabbitmq
+  name: services-rabbitmq
   namespace: services-rabbitmq
   annotations: 
     kubernetes.io/ingress.class: "traefik-external"
@@ -77,7 +77,12 @@ spec:
   entryPoints:
     - websecure
   routes:
-    - match: Host(`rabbitmqgui.10.net.ar`) || Host(`www.rabbitmqgui.10.net.ar`)
+    - match: Host(`www.rabbitmq-gui.10.net.ar`)
+      kind: Rule
+      services:
+        - name: rabbitmqcluster-prod
+          port: 15672
+    - match: Host(`rabbitmq-gui.10.net.ar`)
       kind: Rule
       services:
         - name: rabbitmqcluster-prod
