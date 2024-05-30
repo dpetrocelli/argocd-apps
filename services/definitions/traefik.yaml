@@ -1,60 +1,177 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: traefik-ingress
+#   namespace: argocd
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "0" 
+# spec:
+#   project: infra-services
+#   source:
+#     repoURL: 'https://helm.traefik.io/traefik'
+#     targetRevision: '28.0.0'
+#     chart: traefik
+#     helm:
+#       values: |
+#         globalArguments:
+#           - "--global.sendanonymoususage=false"
+#           - "--global.checknewversion=false"
+
+#         additionalArguments:
+#           - "--serversTransport.insecureSkipVerify=true"
+#           - "--log.level=INFO"
+
+#         deployment:
+#           enabled: true
+#           replicas: 1
+#           annotations: {}
+#           podAnnotations: {}
+#           additionalContainers: []
+#           initContainers: []
+
+#         ports:
+#           web:
+#             redirectTo:
+#               port: websecure
+#           websecure:
+#             tls:
+#               enabled: true
+
+#         ingressRoute:
+#           dashboard:
+#             enabled: true
+#             annotations: {}
+#             labels: {}
+#             matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+#             entryPoints: ["traefik"]
+#             middlewares: []
+#             tls: {}
+
+#         providers:
+#           kubernetesCRD:
+#             enabled: true
+#             ingressClass: traefik-external
+#           kubernetesIngress:
+#             enabled: true
+#             publishedService:
+#               enabled: false
+
+#         ingressClass:
+#           enabled: true
+#           isDefaultClass: true
+#           name: traefik-external
+
+#         rbac:
+#           enabled: true
+
+#         service:
+#           enabled: true
+#           type: LoadBalancer
+#           annotations: {}
+#           labels: {}
+#           loadBalancerSourceRanges: []
+#           externalIPs: []
+#   destination:
+#     server: 'https://kubernetes.default.svc'
+#     namespace: services-traefik
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+# # ---
+# # apiVersion: networking.k8s.io/v1
+# # kind: Ingress
+# # metadata:
+# #   name: traefik-dashboard-ingress
+# #   namespace: services-traefik
+# #   annotations:
+# #     kubernetes.io/ingress.class: "traefik"
+# #     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+# # spec:
+# #   rules:
+# #   - host: "traefik-dashboard.10.net.ar"
+# #     http:
+# #       paths:
+# #       - path: /
+# #         pathType: Prefix
+# #         backend:
+# #           service:
+# #             name: traefik
+# #             port:
+# #               number: 8080
+# #   tls:
+# #   - hosts:
+# #     - "traefik-dashboard.10.net.ar"
+# #     secretName: traefik-tls-secret
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik-ingress  # Name of your ArgoCD application
-  namespace: argocd       # Namespace where the application will be deployed
+  name: traefik-ingress
+  namespace: argocd
   annotations:
-    argocd.argoproj.io/sync-wave: "0"  # Optional: Sync wave for ArgoCD
-
+    argocd.argoproj.io/sync-wave: "0"
 spec:
-  project: infra-services  # Project name in ArgoCD where resources belong
+  project: infra-services
   source:
-    repoURL: 'https://helm.traefik.io/traefik'  # URL of the Traefik Helm chart repository
-    targetRevision: '28.0.0'  # Specific version of the Traefik chart to use
-    chart: traefik           # Name of the chart within the repository
-
-  helm:  # Configuration for Helm templating
-    values: |
-      globalArguments:
-        - "--global.sendanonymoususage=false"  # Disable anonymous usage statistics
-        - "--global.checknewversion=false"     # Disable automatic version check
-      additionalArguments:
-        - "--serversTransport.insecureSkipVerify=true"  # Allow insecure connections (not recommended for production)
-        - "--log.level=INFO"                          # Set logging level to INFO
-        - "--entrypoints.amqp.address=:5672"          # Configure AMQP entrypoint
-        - "--entrypoints.mysql.address=:3306"         # Configure MySQL entrypoint
-      deployment:
-        enabled: true  # Enable deployment of Traefik pod(s)
-        replicas: 1    # Number of Traefik replica pods
-
-  # Ports configuration (corrected)
-  ports:
-    web:
-      expose: true   # Set to true to expose the port, false to hide it
-      exposedPort: 80  # Port number exposed externally
-      protocol: "TCP"  # Communication protocol
-      port: 80        # Port on which Traefik listens internally
-      nodePort: 32080  # NodePort for external access (optional)
-    websecure:
-      expose: true   # Set to true to expose the port, false to hide it
-      exposedPort: 443  # Port number exposed externally
-      protocol: "TCP"  # Communication protocol
-      port: 443        # Port on which Traefik listens internally
-      tls:
-        enabled: true  # Enable TLS for secure communication
-    amqp:
-      expose: true   # Set to true to expose the port, false to hide it
-      exposedPort: 5672  # Port number exposed externally
-      protocol: "TCP"  # Communication protocol
-      port: 5672        # Port on which Traefik listens internally
-
+    repoURL: 'https://helm.traefik.io/traefik'
+    targetRevision: '28.0.0'
+    path: argocd
+    chart: traefik
+    helm:
+      values: |
+        globalArguments:
+          - "--global.sendanonymoususage=false"
+          - "--global.checknewversion=false"
+        additionalArguments:
+          - "--serversTransport.insecureSkipVerify=true"
+          - "--log.level=INFO"
+          - "--entrypoints.amqp.address=:5672"
+          - "--entrypoints.mysql.address=:3306"
+        deployment:
+          enabled: true
+          replicas: 1
+        ports:
+          web:
+            redirectTo:
+              port: websecure
+          websecure:
+            tls:
+              enabled: true
+        ingressRoute:
+          dashboard:
+            enabled: true
+            annotations: {}
+            labels: {}
+            matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+            entryPoints: ["traefik"]
+            middlewares: []
+            tls: {}
+        providers:
+          kubernetesCRD:
+            enabled: true
+            ingressClass: traefik-external
+          kubernetesIngress:
+            enabled: true
+            publishedService:
+              enabled: false
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+          name: traefik-external
+        rbac:
+          enabled: true
+        service:
+          enabled: true
+          type: LoadBalancer
+        
   destination:
-    server: 'https://kubernetes.default.svc'  # Server address for ArgoCD communication
-    namespace: services-traefik               # Namespace where Traefik resources will be deployed
-
+    server: 'https://kubernetes.default.svc'
+    namespace: services-traefik
   syncPolicy:
     automated:
-      prune: true    # Prune deleted resources from ArgoCD
-      selfHeal: true  # Attempt to heal deployments in case of errors
+      prune: true
+      selfHeal: true
     syncOptions:
-      - CreateNamespace=true  # Create the target namespace if it doesn't exist
+      - CreateNamespace=true
