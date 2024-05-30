@@ -1,43 +1,4 @@
-# apiVersion: traefik.io/v1alpha1
-# kind: IngressRouteTCP
-# metadata:
-#   name: rabbitmq-amqp
-#   namespace: services-rabbitmq
-# spec:
-#   entryPoints:
-#     - amqp
-#   routes:
-#   - match: HostSNI(`tcp5672.rabbitmq.10.net.ar`)
-#     services:
-#     - name: rabbitmq
-#       port: 5672
 
-# ---
-# apiVersion: traefik.io/v1alpha1
-# kind: IngressRoute
-# metadata:
-#   name: admin-rabbitmq
-#   namespace: services-rabbitmq
-#   annotations: 
-#     kubernetes.io/ingress.class: "traefik-external"
-# spec:
-#   entryPoints:
-#     - websecure
-#   routes:
-#     - match: Host(`www.admingui.rabbitmq.10.net.ar`)
-#       kind: Rule
-#       services:
-#         - name: rabbitmqcluster-prod
-#           port: 15672
-#     - match: Host(`admingui.rabbitmq.10.net.ar`)
-#       kind: Rule
-#       services:
-#         - name: rabbitmqcluster-prod
-#           port: 443
-#   tls:
-#     secretName: rabbitmq-dev-cert
-
----
 apiVersion: traefik.io/v1alpha1
 kind: IngressRouteTCP
 metadata:
@@ -65,6 +26,7 @@ spec:
     services:
     - name: rabbitmqcluster-prod
       port: 5672
+
 ---
 apiVersion: traefik.io/v1alpha1
 kind: IngressRoute
@@ -89,3 +51,19 @@ spec:
           port: 15672
   tls:
     secretName: rabbitmq-dev-cert
+---
+apiVersion: traefik.io/v1alpha1
+kind: IngressRouteTCP
+metadata:
+  name: redis
+  namespace: services-redis
+
+spec:
+  entryPoints:
+    - redis
+
+  routes:
+  - match: HostSNI(`*`)
+    services:
+    - name: redis-cluster
+      port: 6379

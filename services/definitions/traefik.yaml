@@ -139,6 +139,16 @@ spec:
           websecure:
             tls:
               enabled: true
+          mqtt:
+            port: 1883
+            protocol: TCP
+            expose: 
+              enabled: true
+          amqp:
+            port: 5672
+            protocol: TCP
+            expose: 
+              enabled: true
         ingressRoute:
           dashboard:
             enabled: true
