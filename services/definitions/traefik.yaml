@@ -144,11 +144,11 @@ spec:
             protocol: TCP
             expose: 
               enabled: true
-          amqp:
-            port: 5672
+          rtmp:
+            port: 1935
+            expose: true
+            exposedPort: 1935
             protocol: TCP
-            expose: 
-              enabled: true
         ingressRoute:
           dashboard:
             enabled: true
