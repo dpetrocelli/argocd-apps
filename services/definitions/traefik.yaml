@@ -120,8 +120,51 @@ spec:
     path: argocd
     chart: traefik
     helm:
-      valueFiles:
-        - services/values/traefik-values.yaml
+      values: |
+        globalArguments:
+          - "--global.sendanonymoususage=false"
+          - "--global.checknewversion=false"
+        additionalArguments:
+          - "--serversTransport.insecureSkipVerify=true"
+          - "--log.level=INFO"
+          - "--entrypoints.amqp.address=:5672"
+          - "--entrypoints.mysql.address=:3306"
+        deployment:
+          enabled: true
+          replicas: 1
+        ports:
+          web:
+            redirectTo:
+              port: websecure
+          websecure:
+            tls:
+              enabled: true
+        ingressRoute:
+          dashboard:
+            enabled: true
+            annotations: {}
+            labels: {}
+            matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+            entryPoints: ["traefik"]
+            middlewares: []
+            tls: {}
+        providers:
+          kubernetesCRD:
+            enabled: true
+            ingressClass: traefik-external
+          kubernetesIngress:
+            enabled: true
+            publishedService:
+              enabled: false
+        ingressClass:
+          enabled: true
+          isDefaultClass: true
+          name: traefik-external
+        rbac:
+          enabled: true
+        service:
+          enabled: true
+          type: LoadBalancer
         
   destination:
     server: 'https://kubernetes.default.svc'
