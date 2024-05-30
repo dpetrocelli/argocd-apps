@@ -26,40 +26,32 @@ spec:
           replicas: 1
         ports:
           web:
-            port: 80
             expose: true
             exposedPort: 80
-            protocol: TCP
-            redirectTo: websecure
+            protocol: "TCP"
+            port: 80
+            nodePort: 32080
           websecure:
-            port: 443
             expose: true
             exposedPort: 443
-            protocol: TCP
+            protocol: "TCP"
+            port: 443
             tls:
               enabled: true
           amqp:
-            port: 5672
             expose: true
             exposedPort: 5672
-            protocol: TCP
+            protocol: "TCP"
+            port: 5672
         ingressRoute:
           dashboard:
             enabled: true
-            annotations: {}
-            labels: {}
-            matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
-            entryPoints: ["traefik"]
-            middlewares: []
-            tls: {}
         providers:
           kubernetesCRD:
             enabled: true
             ingressClass: traefik-external
           kubernetesIngress:
             enabled: true
-            publishedService:
-              enabled: false
         ingressClass:
           enabled: true
           isDefaultClass: true
