@@ -19,18 +19,46 @@ spec:
         additionalArguments:
           - "--serversTransport.insecureSkipVerify=true"
           - "--log.level=INFO"
-          - "--entrypoints.amqp.address=:5672"
-          - "--entrypoints.mysql.address=:3306"
+          - "--entrypoints.amqp.address=:5672/tcp"
+          - "--entrypoints.mysql.address=:3306/tcp"
         deployment:
           enabled: true
           replicas: 1
         ports:
           web:
-            redirectTo:
-              port: websecure
+            port: 80
+            expose: true
+            exposedPort: 80
+            protocol: TCP
           websecure:
+            port: 443
+            expose: true
+            exposedPort: 443
+            protocol: TCP
             tls:
               enabled: true
+          amqp:
+            port: 5672
+            expose: true
+            exposedPort: 5672
+            protocol: TCP
+        service:
+          enabled: true
+          type: LoadBalancer
+          spec:
+            ports:
+              - name: web
+                port: 80
+                targetPort: web
+                protocol: TCP
+              - name: websecure
+                port: 443
+                targetPort: websecure
+                protocol: TCP
+              - name: amqp
+                port: 5672
+                targetPort: amqp
+                protocol: TCP
         ingressRoute:
           dashboard:
             enabled: true
@@ -54,22 +82,6 @@ spec:
           name: traefik-external
         rbac:
           enabled: true
-        service:
-          enabled: true
-          type: LoadBalancer
-          annotations: {}
-          spec:
-            ports:
-              - name: web
-                port: 80
-                protocol: TCP
-              - name: websecure
-                port: 443
-                protocol: TCP
-                tls: true
-              - name: amqp
-                port: 5672
-                protocol: TCP
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: services-traefik
