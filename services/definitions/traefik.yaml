@@ -1,78 +1,60 @@
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
-  name: traefik-ingress
-  namespace: argocd
+  name: traefik-ingress  # Name of your ArgoCD application
+  namespace: argocd       # Namespace where the application will be deployed
   annotations:
-    argocd.argoproj.io/sync-wave: "0"
+    argocd.argoproj.io/sync-wave: "0"  # Optional: Sync wave for ArgoCD
+
 spec:
-  project: infra-services
+  project: infra-services  # Project name in ArgoCD where resources belong
   source:
-    repoURL: 'https://helm.traefik.io/traefik'
-    targetRevision: '28.0.0'
-    chart: traefik
-    helm:
-      values: |
-        globalArguments:
-          - "--global.sendanonymoususage=false"
-          - "--global.checknewversion=false"
-        additionalArguments:
-          - "--serversTransport.insecureSkipVerify=true"
-          - "--log.level=INFO"
-          - "--entrypoints.amqp.address=:5672"
-          - "--entrypoints.mysql.address=:3306"
-        deployment:
-          enabled: true
-          replicas: 1
-        ports:
-          web:
-            expose: true
-            exposedPort: 80
-            protocol: "TCP"
-            port: 80
-            nodePort: 32080
-          websecure:
-            expose: true
-            exposedPort: 443
-            protocol: "TCP"
-            port: 443
-            tls:
-              enabled: true
-          amqp:
-            expose: true
-            exposedPort: 5672
-            protocol: "TCP"
-            port: 5672
-        ingressRoute:
-          dashboard:
-            enabled: true
-        providers:
-          kubernetesCRD:
-            enabled: true
-            ingressClass: traefik-external
-          kubernetesIngress:
-            enabled: true
-        ingressClass:
-          enabled: true
-          isDefaultClass: true
-          name: traefik-external
-        rbac:
-          enabled: true
-        service:
-          enabled: true
-          type: LoadBalancer
-          spec:
-            ports:
-              - name: amqp
-                port: 5672
-                targetPort: 5672
-                protocol: TCP
+    repoURL: 'https://helm.traefik.io/traefik'  # URL of the Traefik Helm chart repository
+    targetRevision: '28.0.0'  # Specific version of the Traefik chart to use
+    chart: traefik           # Name of the chart within the repository
+
+  helm:  # Configuration for Helm templating
+    values: |
+      globalArguments:
+        - "--global.sendanonymoususage=false"  # Disable anonymous usage statistics
+        - "--global.checknewversion=false"     # Disable automatic version check
+      additionalArguments:
+        - "--serversTransport.insecureSkipVerify=true"  # Allow insecure connections (not recommended for production)
+        - "--log.level=INFO"                          # Set logging level to INFO
+        - "--entrypoints.amqp.address=:5672"          # Configure AMQP entrypoint
+        - "--entrypoints.mysql.address=:3306"         # Configure MySQL entrypoint
+      deployment:
+        enabled: true  # Enable deployment of Traefik pod(s)
+        replicas: 1    # Number of Traefik replica pods
+
+  # Ports configuration (corrected)
+  ports:
+    web:
+      expose: true   # Set to true to expose the port, false to hide it
+      exposedPort: 80  # Port number exposed externally
+      protocol: "TCP"  # Communication protocol
+      port: 80        # Port on which Traefik listens internally
+      nodePort: 32080  # NodePort for external access (optional)
+    websecure:
+      expose: true   # Set to true to expose the port, false to hide it
+      exposedPort: 443  # Port number exposed externally
+      protocol: "TCP"  # Communication protocol
+      port: 443        # Port on which Traefik listens internally
+      tls:
+        enabled: true  # Enable TLS for secure communication
+    amqp:
+      expose: true   # Set to true to expose the port, false to hide it
+      exposedPort: 5672  # Port number exposed externally
+      protocol: "TCP"  # Communication protocol
+      port: 5672        # Port on which Traefik listens internally
+
   destination:
-    server: 'https://kubernetes.default.svc'
-    namespace: services-traefik
+    server: 'https://kubernetes.default.svc'  # Server address for ArgoCD communication
+    namespace: services-traefik               # Namespace where Traefik resources will be deployed
+
   syncPolicy:
     automated:
-      prune: true
-      selfHeal: true
+      prune: true    # Prune deleted resources from ArgoCD
+      selfHeal: true  # Attempt to heal deployments in case of errors
     syncOptions:
-      - CreateNamespace=true
+      - CreateNamespace=true  # Create the target namespace if it doesn't exist
