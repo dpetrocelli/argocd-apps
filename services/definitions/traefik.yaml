@@ -1,3 +1,110 @@
+# apiVersion: argoproj.io/v1alpha1
+# kind: Application
+# metadata:
+#   name: traefik-ingress
+#   namespace: argocd
+#   annotations:
+#     argocd.argoproj.io/sync-wave: "0" 
+# spec:
+#   project: infra-services
+#   source:
+#     repoURL: 'https://helm.traefik.io/traefik'
+#     targetRevision: '28.0.0'
+#     chart: traefik
+#     helm:
+#       values: |
+#         globalArguments:
+#           - "--global.sendanonymoususage=false"
+#           - "--global.checknewversion=false"
+
+#         additionalArguments:
+#           - "--serversTransport.insecureSkipVerify=true"
+#           - "--log.level=INFO"
+
+#         deployment:
+#           enabled: true
+#           replicas: 1
+#           annotations: {}
+#           podAnnotations: {}
+#           additionalContainers: []
+#           initContainers: []
+
+#         ports:
+#           web:
+#             redirectTo:
+#               port: websecure
+#           websecure:
+#             tls:
+#               enabled: true
+
+#         ingressRoute:
+#           dashboard:
+#             enabled: true
+#             annotations: {}
+#             labels: {}
+#             matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+#             entryPoints: ["traefik"]
+#             middlewares: []
+#             tls: {}
+
+#         providers:
+#           kubernetesCRD:
+#             enabled: true
+#             ingressClass: traefik-external
+#           kubernetesIngress:
+#             enabled: true
+#             publishedService:
+#               enabled: false
+
+#         ingressClass:
+#           enabled: true
+#           isDefaultClass: true
+#           name: traefik-external
+
+#         rbac:
+#           enabled: true
+
+#         service:
+#           enabled: true
+#           type: LoadBalancer
+#           annotations: {}
+#           labels: {}
+#           loadBalancerSourceRanges: []
+#           externalIPs: []
+#   destination:
+#     server: 'https://kubernetes.default.svc'
+#     namespace: services-traefik
+#   syncPolicy:
+#     automated:
+#       prune: true
+#       selfHeal: true
+#     syncOptions:
+#       - CreateNamespace=true
+# # ---
+# # apiVersion: networking.k8s.io/v1
+# # kind: Ingress
+# # metadata:
+# #   name: traefik-dashboard-ingress
+# #   namespace: services-traefik
+# #   annotations:
+# #     kubernetes.io/ingress.class: "traefik"
+# #     traefik.ingress.kubernetes.io/router.entrypoints: websecure
+# # spec:
+# #   rules:
+# #   - host: "traefik-dashboard.10.net.ar"
+# #     http:
+# #       paths:
+# #       - path: /
+# #         pathType: Prefix
+# #         backend:
+# #           service:
+# #             name: traefik
+# #             port:
+# #               number: 8080
+# #   tls:
+# #   - hosts:
+# #     - "traefik-dashboard.10.net.ar"
+# #     secretName: traefik-tls-secret
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
@@ -10,6 +117,7 @@ spec:
   source:
     repoURL: 'https://helm.traefik.io/traefik'
     targetRevision: '28.0.0'
+    path: argocd
     chart: traefik
     helm:
       values: |
@@ -26,58 +134,38 @@ spec:
           replicas: 1
         ports:
           web:
-            port: 80
-            protocol: TCP
-            expose: 
-              enabled: true
+            redirectTo:
+              port: websecure
           websecure:
-            port: 443
-            protocol: TCP
             tls:
               enabled: true
-            expose: 
-              enabled: true
-          mqtt:
-            port: 1883
-            protocol: TCP
-            expose: 
-              enabled: true
-          amqp:
-            port: 5672
-            protocol: TCP
-            expose: 
-              enabled: true
-        service:
-          type: LoadBalancer
-          spec:
-            ports:
-              - name: web
-                port: 80
-                protocol: TCP
-              - name: websecure
-                port: 443
-                protocol: TCP
-              - name: mqtt
-                port: 1883
-                protocol: TCP
-              - name: amqp
-                port: 5672
-                protocol: TCP
         ingressRoute:
           dashboard:
             enabled: true
+            annotations: {}
+            labels: {}
+            matchRule: PathPrefix(`/dashboard`) || PathPrefix(`/api`)
+            entryPoints: ["traefik"]
+            middlewares: []
+            tls: {}
         providers:
           kubernetesCRD:
             enabled: true
             ingressClass: traefik-external
           kubernetesIngress:
             enabled: true
+            publishedService:
+              enabled: false
         ingressClass:
           enabled: true
           isDefaultClass: true
           name: traefik-external
         rbac:
           enabled: true
+        service:
+          enabled: true
+          type: LoadBalancer
+        
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: services-traefik
